@@ -50,31 +50,52 @@ npm test
   подписи, освобождение nonce при сбое, границы сумм, TTL-журнала
   (`tests/integration/qa-adversarial.test.ts`).
 
+## Линтинг и форматирование
+
+ESLint (flat config, `typescript-eslint`) + Prettier:
+
+```bash
+npm run lint          # проверка
+npm run lint:fix      # автоисправление
+npm run format        # форматирование
+npm run format:check  # проверка форматирования
+```
+
 ---
 
 ## API
 
 ### `POST /invoice`
+
 Тело:
+
 ```json
 { "amount": 10000, "currency": "USD", "merchantId": "<ObjectId>" }
 ```
+
 - `fee = amount × feePercent` (feePercent — из настроек мерчанта);
 - `amountToReceive = amount − fee`;
 - сохраняется со статусом `pending`.
 
 Ответ `201`:
+
 ```json
 {
-  "invoiceId": "...", "merchantId": "...",
-  "amount": 10000, "currency": "USD",
-  "fee": 250, "amountToReceive": 9750,
-  "status": "pending", "settledAt": null
+  "invoiceId": "...",
+  "merchantId": "...",
+  "amount": 10000,
+  "currency": "USD",
+  "fee": 250,
+  "amountToReceive": 9750,
+  "status": "pending",
+  "settledAt": null
 }
 ```
 
 ### `POST /webhook`
+
 Заголовки:
+
 - `X-Signature` — `HMAC-SHA256(secret, "<X-Timestamp>.<X-Nonce>." + raw body)`, hex;
 - `X-Timestamp` — unix-время в **секундах** (проверка свежести);
 - `X-Nonce` — уникальная строка (защита от повтора).
@@ -85,6 +106,7 @@ npm test
 Тело: `{ "invoiceId": "...", "status": "paid" | "failed" }`.
 
 Поведение:
+
 - невалидная подпись → `401`;
 - устаревший timestamp → `401`;
 - повторный nonce → `409`;
@@ -92,6 +114,7 @@ npm test
 - повторная доставка того же события → `200` (no-op, `idempotent: true`).
 
 Пример вызова:
+
 ```bash
 BODY='{"invoiceId":"<id>","status":"paid"}'
 SECRET='super-secret-change-me'   # = WEBHOOK_HMAC_SECRET из .env
@@ -109,6 +132,7 @@ curl -X POST http://localhost:3000/webhook \
 ```
 
 ### `GET /invoice/:id`
+
 Возвращает текущее состояние инвойса (`404`, если не найден).
 
 ---
@@ -162,7 +186,7 @@ settleInProgress: { $ne: true } }, { settleInProgress: true })` — захват
 
 - **Идемпотентность `POST /invoice`** через ключ идемпотентности от клиента.
 - **OpenAPI-спека** и больше негативных тестов (битый JSON, отсутствие заголовков).
-- **ESLint/Prettier** в CI и метрики/health для Mongo/Redis.
+- **CI** (lint + test на пуше) и метрики/health для Mongo/Redis.
 
 ---
 

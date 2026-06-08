@@ -3,7 +3,7 @@ import { AppError } from '../lib/errors';
 import { logger } from '../lib/logger';
 
 /** Единый формат ошибок: { error: { code, message } }. */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({ error: { code: err.code, message: err.message } });

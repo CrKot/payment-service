@@ -14,10 +14,7 @@ function signPayload(timestamp: number, nonce: string, raw: string): string {
   return createHmac('sha256', SECRET).update(`${timestamp}.${nonce}.${raw}`).digest('hex');
 }
 
-function postWebhook(
-  body: object,
-  opts: { signature?: string; timestamp?: number; nonce?: string } = {},
-) {
+function postWebhook(body: object, opts: { signature?: string; timestamp?: number; nonce?: string } = {}) {
   const raw = JSON.stringify(body);
   const timestamp = opts.timestamp ?? Math.floor(Date.now() / 1000);
   const nonce = opts.nonce ?? randomUUID();
@@ -201,9 +198,7 @@ describe('QA — крайние значения сумм', () => {
 describe('TQA-6 — TTL-индекс на WebhookEvent', () => {
   it('есть TTL-индекс по receivedAt с expireAfterSeconds', async () => {
     const indexes = await WebhookEventModel.collection.indexes();
-    const ttl = indexes.find(
-      (i) => i.key?.receivedAt === 1 && typeof i.expireAfterSeconds === 'number',
-    );
+    const ttl = indexes.find((i) => i.key?.receivedAt === 1 && typeof i.expireAfterSeconds === 'number');
     expect(ttl).toBeDefined();
   });
 });

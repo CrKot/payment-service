@@ -10,7 +10,11 @@ import { logger } from '../../lib/logger';
  */
 export async function settle(invoice: Invoice): Promise<void> {
   logger.info(
-    { invoiceId: invoice._id.toString(), amountToReceive: invoice.amountToReceive, currency: invoice.currency },
+    {
+      invoiceId: invoice._id.toString(),
+      amountToReceive: invoice.amountToReceive,
+      currency: invoice.currency,
+    },
     'Settlement executed (stub)',
   );
 }

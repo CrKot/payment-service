@@ -14,9 +14,7 @@ describe('POST /invoice', () => {
   it('создаёт инвойс с корректными расчётами и статусом pending', async () => {
     const merchantId = await createMerchant(250); // 2.5%
 
-    const res = await request(app)
-      .post('/invoice')
-      .send({ amount: 10000, currency: 'usd', merchantId });
+    const res = await request(app).post('/invoice').send({ amount: 10000, currency: 'usd', merchantId });
 
     expect(res.status).toBe(201);
     expect(res.body).toMatchObject({
@@ -31,9 +29,7 @@ describe('POST /invoice', () => {
 
   it('400 при невалидном amount', async () => {
     const merchantId = await createMerchant();
-    const res = await request(app)
-      .post('/invoice')
-      .send({ amount: -5, currency: 'USD', merchantId });
+    const res = await request(app).post('/invoice').send({ amount: -5, currency: 'USD', merchantId });
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
@@ -50,9 +46,7 @@ describe('POST /invoice', () => {
 describe('GET /invoice/:id', () => {
   it('возвращает статус существующего инвойса', async () => {
     const merchantId = await createMerchant();
-    const created = await request(app)
-      .post('/invoice')
-      .send({ amount: 5000, currency: 'EUR', merchantId });
+    const created = await request(app).post('/invoice').send({ amount: 5000, currency: 'EUR', merchantId });
 
     const res = await request(app).get(`/invoice/${created.body.invoiceId}`);
     expect(res.status).toBe(200);
